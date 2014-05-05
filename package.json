@@ -19,7 +19,7 @@
     "check",
     "checker"
   ],
-  "files": ["index.js", "LICENSE"],
+  "files": ["index.js", "LICENSE", ".jshintrc"],
   "author": "Vlad Kosinov",
   "license": "MIT",
   "bugs": {
