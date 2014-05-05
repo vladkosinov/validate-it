@@ -33,7 +33,7 @@ var defaultMessages = {
     return msg;
   },
   notEmpty: 'Is empty',
-  isUndefined: 'Is undefined',
+  required: 'Is undefined',
   default: 'Error'
 };
 
@@ -49,7 +49,7 @@ function validate(value, rule) {
   var validators = [];
 
   if (_.isUndefined(value) && isRequired)
-    return isRequired ? {isRequired: prepareMessage('isRequired', value, rule)} : {};
+    return isRequired ? {isRequired: prepareMessage('required', value, rule)} : {};
 
   _.forOwn(defaultValidators, function (value, key) {
     if (!_.isUndefined(rule[key])) {
@@ -96,7 +96,7 @@ function isArrayOfTwoLength(obj) {
   return _.isArray(obj) && obj.length === 2;
 }
 
-var validateIt = function (objectToCheck, rules) {
+var validateIt = function(objectToCheck, rules) {
   var errors = {};
   for (var i = 0; i < rules.length; i++) {
     var rule = rules[i];
