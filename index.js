@@ -78,7 +78,7 @@ function validate(value, rule) {
 
 function prepareMessage(validatorName, value, rule) {
   var message;
-  if (!_.isUndefined(rule.msg[validatorName])) {
+  if (_.isObject(rule.msg) && !_.isUndefined(rule.msg[validatorName])) {
     message = rule.msg[validatorName];
   } else if (!_.isUndefined(defaultMessages[validatorName])) {
     message = defaultMessages[validatorName];
