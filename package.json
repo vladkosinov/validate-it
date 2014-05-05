@@ -1,19 +1,23 @@
 {
   "name": "validate-it",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "declarative validator",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: cooming soon\" && exit 1"
   },
   "repository": {
     "type": "git",
     "url": "git@github.com:vlkosinov/validate-it.git"
   },
   "keywords": [
+    "validate-it",
     "validate",
     "validator",
-    "check"
+    "validation",
+    "valid",
+    "check",
+    "checker"
   ],
   "author": "Vlad Kosinov",
   "license": "MIT",
