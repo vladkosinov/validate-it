@@ -19,6 +19,7 @@
     "check",
     "checker"
   ],
+  "files": ["index.js", "LICENSE"],
   "author": "Vlad Kosinov",
   "license": "MIT",
   "bugs": {
