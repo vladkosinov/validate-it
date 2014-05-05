@@ -29,5 +29,8 @@
   "dependencies": {
     "lodash": "^2.4.1",
     "validator": "^3.11.0"
+  },
+  "devDependencies:": {
+    "jshint": "latest"
   }
 }

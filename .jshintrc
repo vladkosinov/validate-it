@@ -1,0 +1,15 @@
+{
+  "node": true,
+  "noarg": true,
+  "undef": true,
+  "strict": true,
+  "nonew": true,
+  "trailing": true,
+  "indent": 2,
+  "forin": true,
+  "noempty": true,
+  "eqeqeq": true,
+  "bitwise": true,
+  "camelcase": true,
+  "nonbsp": true
+}
