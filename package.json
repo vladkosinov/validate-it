@@ -4,7 +4,7 @@
   "description": "declarative validator",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: cooming soon\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -32,5 +32,9 @@
   },
   "devDependencies:": {
     "jshint": "latest"
+  },
+  "devDependencies": {
+    "mocha": "^1.18.2",
+    "should": "^3.3.1"
   }
 }
