@@ -8,7 +8,7 @@ var defaultValidators = {
     var result = false;
     if (strValidator.isInt(rule.len)) {
       result = strValidator.isLength(value, rule.len);
-    } else if (isArrayOfTwoLength(rule.len)) {
+    } else if (isArrayOfLength(rule.len, 2)) {
       result = strValidator.isLength(value, rule.len[0], rule.len[1]);
     }
     return result;
@@ -21,7 +21,7 @@ var defaultMessages = {
 
     if (strValidator.isInt(rule.len)) {
       msg = 'Expected min ' + rule.len + ' symbols';
-    } else if (isArrayOfTwoLength(rule.len)) {
+    } else if (isArrayOfLength(rule.len, 2)) {
       msg = 'Expected [' + rule.len[0] + ',' + rule.len[1] + ']  symbols.';
     }
 
@@ -88,8 +88,8 @@ function prepareMessage(validatorName, value, rule) {
     return message;
 }
 
-function isArrayOfTwoLength(obj) {
-  return _.isArray(obj) && obj.length === 2;
+function isArrayOfLength(obj, len) {
+  return _.isArray(obj) && obj.length === len;
 }
 
 var validateIt = function(objectToCheck, rules) {
