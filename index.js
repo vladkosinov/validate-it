@@ -4,9 +4,6 @@ var strValidator = require('validator');
 var _ = require('lodash');
 
 var defaultValidators = {
-  notEmpty: function (value) {
-    return !_.isEmpty(value);
-  },
   len: function (value, rule) {
     var result = false;
     if (strValidator.isInt(rule.len)) {
@@ -32,7 +29,6 @@ var defaultMessages = {
 
     return msg;
   },
-  notEmpty: 'Is empty',
   required: 'Is undefined',
   default: 'Error'
 };
@@ -48,7 +44,7 @@ function validate(value, rule) {
   var ruleErrors = {};
   var validators = [];
 
-  if (_.isUndefined(value) && isRequired)
+  if (_.isUndefined(value) || _.isEmpty(value))
     return isRequired ? {isRequired: prepareMessage('required', value, rule)} : {};
 
   _.forOwn(defaultValidators, function (value, key) {
