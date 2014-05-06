@@ -41,21 +41,21 @@ var defaultOptions = {
 function validate(value, rule) {
   var isRequired = _.isUndefined(rule.required) ? defaultOptions.required : rule.required;
   var isFindFirst = _.isUndefined(rule.findFirst) ? defaultOptions.findFirst : rule.findFirst;
-  var ruleErrors = {};
+  var errors = {};
   var validators = [];
 
-  if (_.isUndefined(value) || _.isEmpty(value))
-    return isRequired ? {isRequired: prepareMessage('required', value, rule)} : {};
+  if (_.isUndefined(value))
+    return isRequired ? {isRequired: createMessage('required', value, rule)} : {};
 
-  _.forOwn(defaultValidators, function (value, key) {
-    if (!_.isUndefined(rule[key])) {
-      validators.push([key, value]);
+  _.forOwn(defaultValidators, function (validatorFunc, validatorName) {
+    if (!_.isUndefined(rule[validatorName])) {
+      validators.push([validatorName, validatorFunc]);
     }
   });
 
-  _.forOwn(rule.custom, function (value, key) {
-    if (_.isFunction(value)) {
-      validators.push([key, value]);
+  _.forOwn(rule.custom, function (validatorFunc, validatorName) {
+    if (_.isFunction(validatorFunc)) {
+      validators.push([validatorName, validatorFunc]);
     }
   });
 
@@ -64,15 +64,15 @@ function validate(value, rule) {
     var validatorFunc = validators[i][1];
     var result = validatorFunc(value, rule);
     if (!result) {
-      ruleErrors[validatorName] = prepareMessage(validatorName, value, rule);
+      errors[validatorName] = createMessage(validatorName, value, rule);
     }
-    if (_.size(ruleErrors) && isFindFirst) break;
+    if (_.size(errors) && isFindFirst) break;
   }
 
-  return ruleErrors;
+  return errors;
 }
 
-function prepareMessage(validatorName, value, rule) {
+function createMessage(validatorName, value, rule) {
   var message;
   if (_.isObject(rule.msg) && !_.isUndefined(rule.msg[validatorName])) {
     message = rule.msg[validatorName];
@@ -92,7 +92,7 @@ function isArrayOfLength(obj, len) {
   return _.isArray(obj) && obj.length === len;
 }
 
-var validateIt = function(objectToCheck, rules) {
+module.exports = function (objectToCheck, rules) {
   var errors = {};
   for (var i = 0; i < rules.length; i++) {
     var rule = rules[i];
@@ -100,5 +100,3 @@ var validateIt = function(objectToCheck, rules) {
   }
   return errors;
 };
-
-module.exports = validateIt;
