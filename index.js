@@ -30,6 +30,7 @@ var defaultMessages = {
     return msg;
   },
   required: 'Is undefined',
+  arrayMiss: 'Some filed is not exist',
   default: 'Error'
 };
 
@@ -46,6 +47,11 @@ function validate(value, rule) {
 
   if (_.isUndefined(value))
     return isRequired ? {isRequired: createMessage('required', value, rule)} : {};
+
+  if (_.isArray(rule.name) && _.isArray(value))
+    if (isRequired && _.some(value, function (val) {
+      return _.isUndefined(val);
+    })) return {isRequired: createMessage('arrayMiss', value, rule)};
 
   _.forOwn(defaultValidators, function (validatorFunc, validatorName) {
     if (!_.isUndefined(rule[validatorName])) {
@@ -92,11 +98,43 @@ function isArrayOfLength(obj, len) {
   return _.isArray(obj) && obj.length === len;
 }
 
+function arrayFromKeysOf(keys, of) {
+  var value = [];
+  for (var i = 0; i < keys.length; i++) {
+    var keyName = keys[i];
+    value.push(of[keyName]);
+  }
+  return value;
+}
+
+function validateRule(toCheck, rule) {
+  var value;
+
+  if (_.isArray(rule.name)) {
+    value = arrayFromKeysOf(rule.name, toCheck);
+  } else {
+    value = toCheck[rule.name];
+  }
+  var errors = validate(value, rule);
+  return _.isEmpty(errors) ? null : errors;
+}
+
 module.exports = function (objectToCheck, rules) {
   var errors = {};
+
   for (var i = 0; i < rules.length; i++) {
     var rule = rules[i];
-    errors[rule.name] = validate(objectToCheck[rule.name], rule);
+    var error = validateRule(objectToCheck, rule);
+    if (error === null) continue;
+
+    if (_.isArray(rule.name)) {
+      for (var j = 0; j < rule.name.length; j++) {
+        errors[rule.name[j]] = error;
+      }
+    } else {
+      errors[rule.name] = error;
+    }
   }
+
   return errors;
 };
