@@ -127,9 +127,19 @@ function validateRule(toCheck, rule, options) {
   return _.isEmpty(errors) ? null : errors;
 }
 
-module.exports = function (objectToCheck, rules, options) {
+function fillOptions(opt) {
+  var result = {};
+  _.forOwn(defaultOptions, function(value, name) {
+    result[name] = _.isUndefined(opt[name]) ? value : opt[name];
+  });
+  return result;
+}
+
+module.exports = function (objectToCheck, rules, opt) {
   var errors = {};
-  options = _.extend(defaultOptions, options);
+  var options = _.isUndefined(opt)
+    ? defaultOptions
+    : fillOptions(opt);
 
   for (var i = 0; i < rules.length; i++) {
     var rule = rules[i];
