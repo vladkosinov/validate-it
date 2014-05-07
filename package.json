@@ -1,6 +1,6 @@
 {
   "name": "validate-it",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "declarative validator",
   "main": "src/validate-it.js",
   "scripts": {

@@ -36,12 +36,14 @@ var defaultMessages = {
 
 var defaultOptions = {
   required: true,
-  findFirst: true
+  findFirst: true,
+  short: false
 };
 
-function validate(value, rule) {
-  var isRequired = _.isUndefined(rule.required) ? defaultOptions.required : rule.required;
-  var isFindFirst = _.isUndefined(rule.findFirst) ? defaultOptions.findFirst : rule.findFirst;
+function validate(value, rule, options) {
+  var isRequired = _.isUndefined(rule.required) ? options.required : rule.required;
+  var isFindFirst = _.isUndefined(rule.findFirst) ? options.findFirst : rule.findFirst;
+  var isShort = _.isUndefined(rule.short) ? options.short : rule.short;
   var errors = {};
   var validators = [];
 
@@ -70,6 +72,7 @@ function validate(value, rule) {
     var validatorFunc = validators[i][1];
     var result = validatorFunc(value, rule);
     if (!result) {
+      if (isShort) return createMessage(validatorName, value, rule);
       errors[validatorName] = createMessage(validatorName, value, rule);
     }
     if (_.size(errors) && isFindFirst) break;
@@ -107,7 +110,7 @@ function arrayFromKeysOf(keys, of) {
   return value;
 }
 
-function validateRule(toCheck, rule) {
+function validateRule(toCheck, rule, options) {
   var value;
 
   if (_.isArray(rule.name)) {
@@ -115,16 +118,17 @@ function validateRule(toCheck, rule) {
   } else {
     value = toCheck[rule.name];
   }
-  var errors = validate(value, rule);
+  var errors = validate(value, rule, options);
   return _.isEmpty(errors) ? null : errors;
 }
 
-module.exports = function (objectToCheck, rules) {
+module.exports = function (objectToCheck, rules, options) {
   var errors = {};
+  options = _.extend(defaultOptions, options);
 
   for (var i = 0; i < rules.length; i++) {
     var rule = rules[i];
-    var error = validateRule(objectToCheck, rule);
+    var error = validateRule(objectToCheck, rule, options);
     if (error === null) continue;
 
     if (_.isArray(rule.name)) {
