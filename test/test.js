@@ -1,5 +1,5 @@
-var validateIt = require('./../index.js');
 var should = require('should');
+var validateIt = require('./../src/validate-it.js');
 
 var rules = [
   {
