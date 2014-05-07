@@ -2,7 +2,7 @@
   "name": "validate-it",
   "version": "0.1.0",
   "description": "declarative validator",
-  "main": "index.js",
+  "main": "src/validate-it.js",
   "scripts": {
     "test": "mocha"
   },
