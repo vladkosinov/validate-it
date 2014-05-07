@@ -65,6 +65,34 @@ describe('when data is invalid', function () {
       result.should.eql({ x: {empty: 'Is empty'}});
     });
   });
+
+  describe('different ordering in default rules', function () {
+
+    var data = {
+      password: ''
+    };
+
+    var ruleLenFirst = [{
+      name: 'password',
+      len: 3,
+      empty: false
+    }];
+
+    var ruleEmptyFirst = [{
+      name: 'password',
+      empty: false,
+      len: 3
+    }];
+
+    it('should return "len" message', function() {
+      (validateIt(data, ruleLenFirst)).should.eql({ password: 'Expected min 3 symbols Given: 0'});
+    });
+
+    it('should return "empty" message', function() {
+      (validateIt(data, ruleEmptyFirst)).should.eql({ password: 'Is empty'});
+    });
+  });
+
 });
 
 

@@ -60,9 +60,9 @@ function validate(value, rule, options) {
       return _.isUndefined(val);
     })) return {isRequired: createMessage('arrayMiss', value, rule)};
 
-  _.forOwn(defaultValidators, function (validatorFunc, validatorName) {
-    if (!_.isUndefined(rule[validatorName])) {
-      validators.push([validatorName, validatorFunc]);
+  _.forOwn(rule, function (ruleValue, ruleName){
+    if (!_.isUndefined(defaultValidators[ruleName])) {
+      validators.push([ruleName, defaultValidators[ruleName]]);
     }
   });
 
