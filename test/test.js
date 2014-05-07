@@ -1,3 +1,4 @@
+require('blanket');
 var should = require('should');
 var srtValidator = require('validator');
 var validateIt = require('./../src/validate-it.js');
