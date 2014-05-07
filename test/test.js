@@ -48,7 +48,23 @@ describe('when data is valid', function () {
 
 describe('when data is invalid', function () {
   it('should find errors', function () {
-    (validateIt({x: 'qwe'}, [{name: 'x', len: 10}])).should.containEql({ x: { len: 'Expected min 10 symbols Given: 3' }});
+    (validateIt({x: 'qwe'}, [{name: 'x', len: 10}])).should.eql({ x:'Expected min 10 symbols Given: 3' });
+  });
+
+  describe('when "empty" function used', function () {
+
+    it('should return default short message', function() {
+      (validateIt({x:''}, [{name: 'x', empty:false}])).should.eql({ x:'Is empty'});
+    });
+
+    it('should return default message', function() {
+      var toCheck = {x:''},
+          rules = [{name: 'x', empty:false}],
+          opts = {short: false};
+      var result = validateIt(toCheck, rules, opts);
+      result.should.eql({ x: {empty: 'Is empty'}});
+    });
   });
 });
+
 

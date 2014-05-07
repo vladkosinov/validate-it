@@ -12,6 +12,10 @@ var defaultValidators = {
       result = strValidator.isLength(value, rule.len[0], rule.len[1]);
     }
     return result;
+  },
+  empty: function (value, rule) {
+    var shouldBeEmpty = !!rule.empty;
+    return shouldBeEmpty ? _.isEmpty(value) : !_.isEmpty(value);
   }
 };
 
@@ -30,6 +34,7 @@ var defaultMessages = {
     return msg;
   },
   required: 'Is undefined',
+  empty: 'Is empty',
   arrayMiss: 'Some filed is not exist',
   default: 'Error'
 };
@@ -37,7 +42,7 @@ var defaultMessages = {
 var defaultOptions = {
   required: true,
   findFirst: true,
-  short: false
+  short: true
 };
 
 function validate(value, rule, options) {
