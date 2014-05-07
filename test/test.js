@@ -72,25 +72,52 @@ describe('when data is invalid', function () {
       password: ''
     };
 
-    var ruleLenFirst = [{
+    var ruleLenFirst = {
       name: 'password',
       len: 3,
       empty: false
-    }];
+    };
 
-    var ruleEmptyFirst = [{
+    var ruleEmptyFirst = {
       name: 'password',
       empty: false,
       len: 3
-    }];
+    };
 
     it('should return "len" message', function() {
-      (validateIt(data, ruleLenFirst)).should.eql({ password: 'Expected min 3 symbols Given: 0'});
+      (validateIt(data, [ruleLenFirst])).should.eql({ password: 'Expected min 3 symbols Given: 0'});
     });
 
     it('should return "empty" message', function() {
-      (validateIt(data, ruleEmptyFirst)).should.eql({ password: 'Is empty'});
+      (validateIt(data, [ruleEmptyFirst])).should.eql({ password: 'Is empty'});
     });
+
+    it('should return "empty" and "len "message', function() {
+      var shouldBe = {
+        password: {
+          empty: 'Is empty',
+          len: 'Expected min 3 symbols Given: 0'
+        }
+      };
+
+      var result = (validateIt(data, [ruleLenFirst], {short:false, findFirst:false}));
+      result.should.eql(shouldBe);
+    });
+  });
+
+  describe('when "name" is array', function () {
+
+    var dataWithName = {name: 'friend'};
+    var rule = {name: ['name', 'lastname'], required: true};
+    var shouldBe = {
+      name: 'Some of [name,lastname] not exist',
+      lastname: 'Some of [name,lastname] not exist'
+    };
+
+    it('is should return "some of [...] not exist"', function() {
+      (validateIt(dataWithName, [rule], {short:true})).should.eql(shouldBe);
+    });
+
   });
 
 });
