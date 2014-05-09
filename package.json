@@ -4,7 +4,10 @@
   "description": "declarative validator",
   "main": "src/validate-it.js",
   "scripts": {
-    "test": "mocha > coverage.html"
+    "test": "mocha | coveralls"
+  },
+  "engines": {
+    "node": ">= 0.10.0"
   },
   "repository": {
     "type": "git",
@@ -30,17 +33,17 @@
     "lodash": "^2.4.1",
     "validator": "^3.11.0"
   },
-  "devDependencies:": {
-    "jshint": "latest"
-  },
   "devDependencies": {
+    "jshint": "latest",
     "mocha": "^1.18.2",
     "should": "^3.3.1",
-    "blanket": "^1.1.6"
+    "blanket": "^1.1.6",
+    "coveralls": "^2.10.0",
+    "mocha-lcov-reporter": "0.0.1"
   },
   "config": {
     "blanket": {
-      "pattern": "validate-it.js"
+      "pattern": "src/validate-it.js"
     }
   }
 }
