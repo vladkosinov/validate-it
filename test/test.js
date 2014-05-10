@@ -1,5 +1,5 @@
 require('blanket');
-var should = require('should');
+require('should');
 var srtValidator = require('validator');
 var validateIt = require('./../src/validate-it.js');
 
@@ -21,7 +21,7 @@ var rules = [
     name: 'email',
     required: false,
     custom: {
-      isEmail: function(val) {
+      isEmail: function (val) {
         return srtValidator.isEmail(val);
       }
     },
@@ -47,24 +47,7 @@ describe('when data is valid', function () {
 });
 
 describe('when data is invalid', function () {
-  it('should find errors', function () {
-    (validateIt({x: 'qwe'}, [{name: 'x', len: 10}])).should.eql({ x:'Expected min 10 symbols Given: 3' });
-  });
 
-  describe('when "empty" function used', function () {
-
-    it('should return default short message', function() {
-      (validateIt({x:''}, [{name: 'x', empty:false}])).should.eql({ x:'Is empty'});
-    });
-
-    it('should return default message', function() {
-      var toCheck = {x:''},
-          rules = [{name: 'x', empty:false}],
-          opts = {short: false};
-      var result = validateIt(toCheck, rules, opts);
-      result.should.eql({ x: {empty: 'Is empty'}});
-    });
-  });
 
   describe('different ordering in default rules', function () {
 
@@ -84,15 +67,15 @@ describe('when data is invalid', function () {
       len: 3
     };
 
-    it('should return "len" message', function() {
+    it('should return "len" message', function () {
       (validateIt(data, [ruleLenFirst])).should.eql({ password: 'Expected min 3 symbols Given: 0'});
     });
 
-    it('should return "empty" message', function() {
+    it('should return "empty" message', function () {
       (validateIt(data, [ruleEmptyFirst])).should.eql({ password: 'Is empty'});
     });
 
-    it('should return "empty" and "len "message', function() {
+    it('should return "empty" and "len "message', function () {
       var shouldBe = {
         password: {
           empty: 'Is empty',
@@ -100,7 +83,7 @@ describe('when data is invalid', function () {
         }
       };
 
-      var result = (validateIt(data, [ruleLenFirst], {short:false, findFirst:false}));
+      var result = (validateIt(data, [ruleLenFirst], {short: false, findFirst: false}));
       result.should.eql(shouldBe);
     });
   });
@@ -114,10 +97,74 @@ describe('when data is invalid', function () {
       lastname: 'Some of [name,lastname] not exist'
     };
 
-    it('is should return "some of [...] not exist"', function() {
-      (validateIt(dataWithName, [rule], {short:true})).should.eql(shouldBe);
+    it('is should return "some of [...] not exist"', function () {
+      (validateIt(dataWithName, [rule])).should.eql(shouldBe);
     });
 
+  });
+
+  describe('when using the default validators', function () {
+    describe('empty validator', function () {
+
+      it('should return default short message', function () {
+        (validateIt({x: ''}, [
+          {name: 'x', empty: false}
+        ])).should.eql({ x: 'Is empty'});
+      });
+
+      it('should return default message', function () {
+        var data = {x: ''};
+        var rule = {name: 'x', empty: false};
+        var opts = {short: false};
+
+        (validateIt(data, [rule], opts)).should.eql({ x: {empty: 'Is empty'}});
+      });
+    });
+
+    describe('len validator', function () {
+
+      var data = {name: 'borya'};
+
+      it('Expected min 10 symbols', function () {
+        var rule = {name: 'name', len: 10};
+        (validateIt(data, [rule])).should.eql({ name: 'Expected min 10 symbols Given: 5' });
+      });
+
+      describe('constraint is array', function () {
+        it('Expected [2,3] symbols', function () {
+          var rule = {name: 'name', len: [2, 3]};
+          (validateIt(data, [rule])).should.eql({ name: 'Expected [2,3]  symbols. Given: 5' });
+        });
+
+      });
+    });
+  });
+
+  describe('when using custom validator', function () {
+    describe('when using default message', function () {
+      it('should return { name: "Error" }', function () {
+        var data = {name: 'borya'};
+        var rule = {name: 'name', custom: {
+          isUpperCase: function (value) {
+            return srtValidator.isUppercase(value);
+          }
+        }};
+        (validateIt(data, [rule])).should.eql({ name: 'Error' });
+      });
+
+    });
+    describe('when using custom message', function () {
+      it('should return { name: "Error" }', function () {
+        var data = {name: 'borya'};
+        var rule = {name: 'name', custom: {
+          isUpperCase: function (value) {
+            return srtValidator.isUppercase(value);
+          }
+        }, msg: {isUpperCase: "Is not UpperCase"}};
+        (validateIt(data, [rule])).should.eql({name: "Is not UpperCase"});
+      });
+
+    });
   });
 
 });
