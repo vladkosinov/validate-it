@@ -55,7 +55,7 @@ function validate(value, rule, options) {
   var validators = [];
 
   if (_.isUndefined(value))
-    return isRequired ? makeRequiredError(createMessage('arrayMiss', value, rule), isShort) : {};
+    return isRequired ? makeRequiredError(createMessage('required', value, rule), isShort) : {};
 
   if (_.isArray(rule.name) && _.isArray(value) && _.some(value, function (val) {
     return _.isUndefined(val);
