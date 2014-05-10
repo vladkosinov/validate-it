@@ -1,6 +1,6 @@
 {
   "name": "validate-it",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "declarative validator",
   "main": "src/validate-it.js",
   "scripts": {
@@ -22,7 +22,7 @@
     "check",
     "checker"
   ],
-  "files": ["src/validate-it.js", "LICENSE", ".jshintrc"],
+  "files": ["src/validate-it.js", "LICENSE", ".jshintrc", "test/test.js", "test/mocha.opts"],
   "author": "Vlad Kosinov",
   "license": "MIT",
   "bugs": {
