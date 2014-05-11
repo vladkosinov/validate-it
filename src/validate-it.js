@@ -35,7 +35,7 @@ var defaultMessages = {
   },
   required: 'Is undefined',
   empty: 'Is empty',
-  arrayMiss: function(value, rule) {
+  arrayMiss: function (value, rule) {
     return 'Some of [' + rule.name.join(',') + '] not exist';
   },
   default: 'Error'
@@ -134,10 +134,16 @@ function validateRule(toCheck, rule, options) {
 
 function fillOptions(opt) {
   var result = {};
-  _.forOwn(defaultOptions, function(value, name) {
+  _.forOwn(defaultOptions, function (value, name) {
     result[name] = _.isUndefined(opt[name]) ? value : opt[name];
   });
   return result;
+}
+
+function makeArrayFrom(rules) {
+  if (_.isArray(rules)) return rules;
+  if (_.isObject(rules)) return [rules];
+  return [];
 }
 
 module.exports = function (objectToCheck, rules, opt) {
@@ -145,6 +151,8 @@ module.exports = function (objectToCheck, rules, opt) {
   var options = _.isUndefined(opt)
     ? defaultOptions
     : fillOptions(opt);
+
+  rules = makeArrayFrom(rules);
 
   for (var i = 0; i < rules.length; i++) {
     var rule = rules[i];
