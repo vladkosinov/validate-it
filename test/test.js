@@ -1,172 +1,231 @@
+'use strict';
+
 require('blanket');
 require('should');
 var srtValidator = require('validator');
 var validateIt = require('./../src/validate-it.js');
+var _ = require('lodash');
 
-var rules = [
-  {
-    name: 'username',
-    required: true,
-    len: [3, 20],
-    msg: {
-      required: 'Ohooho user name required'
-    }
-  },
-  {
-    name: 'password',
-    required: true,
-    len: [3, 20]
-  },
-  {
-    name: 'email',
-    required: false,
+var baseOpts = {
+  findAllErrors: {findFirst: false},
+  outputWithValidatorName: {short: true},
+  isNotRequired: {required: false}
+};
+
+var baseRules = {
+  nickLenMoreThan10: {name: 'nick', len: 10},
+  nickLenFrom4To9: {name: 'nick', len: [4, 9]},
+  nickLenExactly24: {name: 'nick', len: [24, 24]},
+  nickIsNotEmpty: {name: 'nick', empty: false},
+  nickIsEmpty: {name: 'nick', empty: true},
+  nickIsNotRequired: {name: 'nick', required: false},
+  validInterval: {
+    name: ['from', 'to'],
     custom: {
-      isEmail: function (val) {
-        return srtValidator.isEmail(val);
+      validInterval: function (val) {
+        return val[0] < val[1];
       }
     },
     msg: {
-      isEmail: 'Bad email'
+      validInterval: 'Invalid interval'
     }
-
+  },
+  emailIsValid: {name: 'email',
+    custom: {
+      isEmail: srtValidator.isEmail
+    },
+    msg: {
+      isEmail: 'Invalid email'
+    }
   }
-];
+};
 
-var validData = [
-  {username: 'vladko', password: 'qqq'},
-  {username: 'pashko', password: 'zxc', email: 'pashko@mail.com'}
-];
+var baseData = {
+  nickLen0: {nick: ''},
+  nickLen3: {nick: '3xt'},
+  nickLen5: {nick: '5text'},
+  nickLen24: {nick: '24xtTextTextTextTextText'},
+  nickUndefined: {nick: undefined},
+  email: {email: 'validate-it-mania@gmail.com'},
+  emailIsInvalid: {email: 'aaa@'},
+  emailLen10: {email: 'a@test.com'},
+  intervalFrom0To100: {from: 0, to: 100},
+  intervalFrom0WithoutTo: {from: 0},
+  intervalFrom100To0: {from: 100, to: 0},
+  empty: [ false, [], {} ]
+};
 
-describe('when data is valid', function () {
-  it('should not find errors', function () {
-    validData.forEach(function (key) {
-      (validateIt(key, rules)).should.be.empty;
+describe('when rule is object', function () {
+
+  it('should validate property defined in THAT rule', function () {
+    var data = _.extend({}, baseData.empty, baseData.nickLen3);
+    var rule = baseRules.nickLenFrom4To9;
+    var expectedError = {
+      nick: 'Expected [4,9] symbols. Given: 3'
+    };
+
+    (validateIt(data, rule)).should.eql(expectedError);
+  });
+});
+
+describe('when rule is array', function () {
+
+  it('should validate properties defined in ALL rules', function () {
+    var data = _.extend({}, baseData.emailIsInvalid, baseData.nickLen24);
+    var rules = [baseRules.nickLenFrom4To9, baseRules.emailIsValid];
+    var expectedError = {
+      nick: 'Expected [4,9] symbols. Given: 24',
+      email: 'Invalid email'
+    };
+    (validateIt(data, rules)).should.eql(expectedError);
+  });
+});
+
+
+describe('when rule is not a object or array', function () {
+
+  it('should ALWAYS return empty object', function () {
+    var data = baseData.nickLen5;
+    var rules = ['String', 557, true, null, undefined, NaN];
+    var expectedError = {};
+
+    rules.forEach(function (rule) {
+      (validateIt(data, rule)).should.eql(expectedError);
+    });
+  });
+});
+
+describe('when rule\'s property "name" is array', function () {
+
+  var rule = baseRules.validInterval; // ..name: ['from', 'to'] ...
+
+  describe('when one of objects to validate is not exist', function () {
+
+    var data = baseData.intervalFrom0WithoutTo;
+
+    it('should return arrayRequired error', function () {
+      var shouldBe = {
+        from: 'Is required [to]',
+        to: 'Is required [to]'
+      };
+      (validateIt(data, rule)).should.eql(shouldBe);
+    });
+
+    describe('when both objects not exist', function () {
+      it('should not return any errors', function () {
+        var data = {};
+        var shouldBe = {
+          from: 'Is required [from,to]',
+          to: 'Is required [from,to]'
+        };
+        (validateIt(data, rule)).should.eql(shouldBe);
+      });
+    });
+
+    describe('when required option set to false', function () {
+      it('should not return any errors', function () {
+        var shouldBe = {};
+        var opts = {required: false};
+        (validateIt(data, rule, opts)).should.eql(shouldBe);
+      });
     });
   });
 
-});
 
-describe('when data is invalid', function () {
+  describe('when validation fails', function () {
+    it('should return same error for object to validate', function () {
 
-
-  describe('different ordering in default rules', function () {
-
-    var data = {
-      password: ''
-    };
-
-    var ruleLenFirst = {
-      name: 'password',
-      len: 3,
-      empty: false
-    };
-
-    var ruleEmptyFirst = {
-      name: 'password',
-      empty: false,
-      len: 3
-    };
-
-    it('should return "len" message', function () {
-      (validateIt(data, [ruleLenFirst])).should.eql({ password: 'Expected min 3 symbols Given: 0'});
-    });
-
-    it('should return "empty" message', function () {
-      (validateIt(data, [ruleEmptyFirst])).should.eql({ password: 'Is empty'});
-    });
-
-    it('should return "empty" and "len "message', function () {
+      var data = baseData.intervalFrom100To0;
       var shouldBe = {
-        password: {
-          empty: 'Is empty',
-          len: 'Expected min 3 symbols Given: 0'
-        }
+        from: 'Invalid interval',
+        to: 'Invalid interval'
       };
 
-      var result = (validateIt(data, [ruleLenFirst], {short: false, findFirst: false}));
-      result.should.eql(shouldBe);
-    });
-  });
-
-  describe('when "name" is array', function () {
-
-    var dataWithName = {name: 'friend'};
-    var rule = {name: ['name', 'lastname'], required: true};
-    var shouldBe = {
-      name: 'Some of [name,lastname] not exist',
-      lastname: 'Some of [name,lastname] not exist'
-    };
-
-    it('is should return "some of [...] not exist"', function () {
-      (validateIt(dataWithName, [rule])).should.eql(shouldBe);
-    });
-
-  });
-
-  describe('when using the default validators', function () {
-    describe('empty validator', function () {
-
-      it('should return default short message', function () {
-        (validateIt({x: ''}, [
-          {name: 'x', empty: false}
-        ])).should.eql({ x: 'Is empty'});
-      });
-
-      it('should return default message', function () {
-        var data = {x: ''};
-        var rule = {name: 'x', empty: false};
-        var opts = {short: false};
-
-        (validateIt(data, [rule], opts)).should.eql({ x: {empty: 'Is empty'}});
-      });
-    });
-
-    describe('len validator', function () {
-
-      var data = {name: 'borya'};
-
-      it('Expected min 10 symbols', function () {
-        var rule = {name: 'name', len: 10};
-        (validateIt(data, [rule])).should.eql({ name: 'Expected min 10 symbols Given: 5' });
-      });
-
-      describe('constraint is array', function () {
-        it('Expected [2,3] symbols', function () {
-          var rule = {name: 'name', len: [2, 3]};
-          (validateIt(data, [rule])).should.eql({ name: 'Expected [2,3]  symbols. Given: 5' });
-        });
-
-      });
-    });
-  });
-
-  describe('when using custom validator', function () {
-    describe('when using default message', function () {
-      it('should return { name: "Error" }', function () {
-        var data = {name: 'borya'};
-        var rule = {name: 'name', custom: {
-          isUpperCase: function (value) {
-            return srtValidator.isUppercase(value);
-          }
-        }};
-        (validateIt(data, [rule])).should.eql({ name: 'Error' });
-      });
-
-    });
-    describe('when using custom message', function () {
-      it('should return { name: "Error" }', function () {
-        var data = {name: 'borya'};
-        var rule = {name: 'name', custom: {
-          isUpperCase: function (value) {
-            return srtValidator.isUppercase(value);
-          }
-        }, msg: {isUpperCase: "Is not UpperCase"}};
-        (validateIt(data, [rule])).should.eql({name: "Is not UpperCase"});
-      });
-
+      (validateIt(data, rule)).should.eql(shouldBe);
     });
   });
 
 });
+
+describe('when using the default validators', function () {
+
+  describe('empty validator', function () {
+    var rule = baseRules.nickIsNotEmpty;
+
+    it('should return default message', function () {
+      var data = baseData.nickLen0;
+      var shouldBe = {nick: 'Is empty'};
+
+      for (var i = 0; i < baseData.empty.length; i++)
+        data.nick = baseData.empty[i];
+
+      (validateIt(data, rule)).should.eql(shouldBe);
+    });
+
+    it('should return default message', function () {
+      var data = {x: ''};
+      var rule = {name: 'x', empty: false};
+      var opts = {short: false};
+
+      (validateIt(data, [rule], opts)).should.eql({ x: {empty: 'Is empty'}});
+    });
+  });
+
+  describe('len validator', function () {
+    it('Expected min 10 symbols', function () {
+      var data = baseData.nickLen5;
+      var rule = baseRules.nickLenMoreThan10;
+      var shouldBe = {nick: 'Expected min 10 symbols. Given: 5'};
+      (validateIt(data, rule)).should.eql(shouldBe);
+    });
+
+    describe('constraint is array', function () {
+      it('Expected [4,9] symbols', function () {
+        var data = baseData.nickLen24;
+        var rule = baseRules.nickLenFrom4To9;
+        var shouldBe = {nick: 'Expected [4,9] symbols. Given: 24' };
+        (validateIt(data, [rule])).should.eql(shouldBe);
+      });
+
+    });
+  });
+});
+
+describe('when using custom validator', function () {
+  describe('without custom message', function () {
+    it('should return { name: "Error" }', function () {
+      var data = {name: 'borya'};
+      var rule = {name: 'name', custom: {
+        isUpperCase: function (value) {
+          return srtValidator.isUppercase(value);
+        }
+      }};
+      (validateIt(data, [rule])).should.eql({ name: 'Error' });
+    });
+
+  });
+  describe('with custom message', function () {
+    it('should return {name: "Is not UpperCase"} }', function () {
+      var data = {name: 'borya'};
+      var rule = {name: 'name', custom: {
+        isUpperCase: function (value) {
+          return srtValidator.isUppercase(value);
+        }
+      }, msg: {isUpperCase: "Is not UpperCase"}};
+      (validateIt(data, [rule])).should.eql({name: "Is not UpperCase"});
+    });
+
+  });
+});
+
+describe('when value in undefined', function () {
+  it('should return {name: "Is not UpperCase"} }', function () {
+    var data = baseData.nickUndefined;
+    var rule = {name: 'nick'};
+    (validateIt(data, rule)).should.eql({nick: 'Is required'});
+  });
+});
+
+
 
 
