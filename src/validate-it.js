@@ -33,10 +33,16 @@ var defaultMessages = {
 
     return msg;
   },
-  required: 'Is undefined',
+  required: 'Is required',
   empty: 'Is empty',
-  arrayMiss: function (value, rule) {
-    return 'Some of [' + rule.name.join(',') + '] not exist';
+  arrayRequired: function (value, rule) {
+    var whatIsNotExist = [];
+    for (var i = 0; i < rule.name.length; i++) {
+      if (_.isUndefined(value[i])){
+        whatIsNotExist.push(rule.name[i]);
+      }
+    }
+    return 'Is required [' + whatIsNotExist.join(',') + ']';
   },
   default: 'Error'
 };
@@ -59,9 +65,9 @@ function validate(value, rule, options) {
 
   if (_.isArray(rule.name) && _.isArray(value) && _.some(value, function (val) {
     return _.isUndefined(val);
-  })) return isRequired ? makeRequiredError(createMessage('arrayMiss', value, rule), isShort) : {};
+  })) return isRequired ? makeRequiredError(createMessage('arrayRequired', value, rule), isShort) : {};
 
-  _.forOwn(rule, function (ruleValue, ruleName){
+  _.forOwn(rule, function (ruleValue, ruleName) {
     if (!_.isUndefined(defaultValidators[ruleName])) {
       validators.push([ruleName, defaultValidators[ruleName]]);
     }
@@ -88,7 +94,7 @@ function validate(value, rule, options) {
 }
 
 function makeRequiredError(message, isShort) {
-  return isShort ? message : {name : message};
+  return isShort ? message : {required: message};
 }
 
 function createMessage(validatorName, value, rule) {
