@@ -4,6 +4,10 @@ var strValidator = require('validator');
 var _ = require('lodash');
 
 var defaultValidators = {
+  empty: function (value, rule) {
+    var shouldBeEmpty = !!rule.empty;
+    return shouldBeEmpty ? _.isEmpty(value) : !_.isEmpty(value);
+  },
   len: function (value, rule) {
     var result = false;
     if (strValidator.isInt(rule.len)) {
@@ -12,10 +16,6 @@ var defaultValidators = {
       result = strValidator.isLength(value, rule.len[0], rule.len[1]);
     }
     return result;
-  },
-  empty: function (value, rule) {
-    var shouldBeEmpty = !!rule.empty;
-    return shouldBeEmpty ? _.isEmpty(value) : !_.isEmpty(value);
   }
 };
 
