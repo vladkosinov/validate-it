@@ -26,10 +26,10 @@ var defaultMessages = {
     if (strValidator.isInt(rule.len)) {
       msg = 'Expected min ' + rule.len + ' symbols';
     } else if (isArrayOfLength(rule.len, 2)) {
-      msg = 'Expected [' + rule.len[0] + ',' + rule.len[1] + ']  symbols.';
+      msg = 'Expected [' + rule.len[0] + ',' + rule.len[1] + ']  symbols';
     }
 
-    msg += ' Given: ' + value.length;
+    msg += '. Given: ' + value.length;
 
     return msg;
   },
