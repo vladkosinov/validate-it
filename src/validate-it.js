@@ -129,6 +129,10 @@ function arrayFromKeysOf(keys, of) {
 function validateRule(toCheck, rule, options) {
   var value;
 
+  if (_.isUndefined(toCheck)) {
+    return options.required ? makeRequiredError(createMessage('required', null, rule), true) : null;
+  }
+
   if (_.isArray(rule.name)) {
     value = arrayFromKeysOf(rule.name, toCheck);
   } else {

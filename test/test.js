@@ -226,6 +226,15 @@ describe('when value in undefined', function () {
   });
 });
 
+describe('when value in undefined', function () {
+  it('should return err for field of this object', function () {
+    var data = undefined;
+    var rule = {name: 'Ahjhjds'};
+    var shouldBe = {'Ahjhjds' : 'Is required'};
+    (validateIt(data, rule)).should.eql(shouldBe);
+  });
+});
+
 
 
 
